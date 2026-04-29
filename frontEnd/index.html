@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html ng-app="app" >
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <title>Galleta-de-la-fortuna</title>
+</head>
+<body ng-controller="MainController" >
+
+    <div class="container mt-4">
+        <div class="card shadow p-4" >
+
+        <h2 class="text-center mb-4">Galleta de la Fortuna</h2>
+
+            <div ng-if="!currentUser" class="card p-3">
+                <h3>Login</h3>
+
+                <input type="email" ng-model="loginData.email" placeholder="Email"  class="form-control mb-2">
+                <input type="password" ng-model="loginData.password" placeholder="Contraseña" class="form-control mb-2">
+
+                <button ng-click="login()" class="btn btn-primary">Ingresar</button>
+            </div>
+
+            <div ng-if="currentUser" >
+                <div class="fortune-card">
+                    <p  class="text-muted mb-2 ">Bienvenido <strong>{{currentUser.name}}</strong></p>
+
+                    <div class="fortune-wrapper">
+
+                        <img ng-if="!frase" src="img/cookie-closed.png" class="galleta-img">
+
+                        <img ng-if="frase" src="img/cookie-cracked.png" class="galleta-img">
+
+                        <button ng-if="!frase" ng-click="getFrase()" class="btn btn-warning mt-2">
+                            Abrir galleta
+                        </button>
+
+                        <div class="frase-container" ng-if="frase">
+                            <p class="frase-texto">"{{frase}}"</p>
+                            <small class="frase-autor">— {{fraseData['created-by']}}</small>
+                        </div>
+                    </div>
+                </div>
+                    <div ng-if="currentUser.role === 'user'" class="card p-1 mb-2 mt-5" >
+                        <h5>Enviar idea de frase</h5>
+
+                        <input class="form-control mb-1" type="text" ng-model="suggestion.body" placeholder="Tu idea">
+                        <button class="btn btn-success" ng-click="sendSuggestion()">Enviar sugerencia</button>
+                    </div>
+
+                <div ng-if="currentUser.role === 'admin'">
+
+                    <div  class="card p-3 mb-3">
+                        <h4>Agregar frase</h4>
+
+                        <input type="text" ng-model="formFrase.body" placeholder="Nueva frase" class="form-control mb-2">
+                        <button ng-click="addFrase()" class="btn btn-success">Guardar frase</button>
+
+                    </div>
+
+
+                    <div class="card p-3 mb-3">
+                        <h4>Sugerencias pendientes ({{suggestions.length}})</h4>
+
+                        <p ng-if="suggestions.length === 0" class="text-muted">No hay sugerencias pendientes.</p>
+
+                        <div ng-repeat="s in suggestions" class="border rounded p-2 mb-2">
+
+                            <p>"{{s.body}}" — enviada por {{s.created_by}}</p>
+
+                            <button ng-click="approve(s.id)" class="btn btn-sm btn-success" >Aprobar</button>
+                            <button ng-click="reject(s.id)" class="btn btn-sm btn-danger">Rechazar</button>
+                        </div>
+
+                    </div>
+
+                    <div class="card p-3 mb-3">
+                        <h3 class="text-primary">Panel de administración de frases</h3>
+
+                        <div class="mb-3">
+                            <button class="btn btn-outline-primary btn-sm" ng-click="loadFrases()">Ver todas las frases</button>
+                            <button class="btn btn-outline-success btn-sm" ng-click="loadApprovedSuggestions()">Ver sugerencias aprobadas</button>
+                            <button class="btn btn-outline-danger btn-sm" ng-click="loadRejectedSuggestions()">Ver sugerencias rechazadas</button>
+                        </div>
+
+                        <div ng-if="showSection === 'frases'">
+                            <h5>Todas las frases</h5>
+
+                            <div ng-repeat="f in frases" class="d-flex justify-content-between border p-2 mb-2">
+
+                                <div ng-if="editingFrase !== f.id">
+                                    "{{f.body}}"
+                                    <small class="text-muted">— {{f['created-by']}}</small>
+                                </div>
+
+                                <div ng-if="editingFrase !== f.id">
+                                    <button class="btn btn-sm btn-outline-secondary" ng-click="startEditFrase(f)">Editar</button>
+                                    <button class="btn btn-sm btn-outline-danger" ng-click="deleteFrase(f.id)">Eliminar</button>
+                                </div>
+
+                                <div ng-if="editingFrase === f.id" class="d-flex gap-2 w-100">
+                                    <input class="form-control form-control-sm" type="text" ng-model="editForm.body">
+                                    <button class="btn btn-sm btn-success" ng-click="updateFrase(f.id)">Guardar</button>
+                                    <button class="btn btn-sm btn-outline-secondary" ng-click="cancelEditFrase()">Cancelar</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- APROBADAS -->
+                        <div ng-if="showSection === 'approved'">
+                            <h4>Sugerencias aprobadas</h4>
+
+                            <div ng-repeat="s in approvedSuggestions" class="border p-2 mb-2">
+                                "{{s.body}}" — {{s.created_by}}
+                            </div>
+                        </div>
+
+                        <!-- RECHAZADAS -->
+                        <div ng-if="showSection === 'rejected'">
+                            <h4>Sugerencias rechazadas</h4>
+
+                            <div ng-repeat="s in rejectedSuggestions" class="border p-2 mb-2">
+                                "{{s.body}}" — {{s.created_by}}
+                            </div>
+                        </div>
+
+                    </div>
+
+                            <button class="btn btn-outline-dark" ng-click="logout()">Cerrar sesión</button>
+                </div>
+            </div>
+
+        </div>
+
+        <script src="app.js"></script>
+    </div>
+
+
+</body>
+
+</html>

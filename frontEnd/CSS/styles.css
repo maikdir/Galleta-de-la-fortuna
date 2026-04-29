@@ -1,0 +1,52 @@
+.galleta-container {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.galleta-img {
+    width: 180px;
+    transition: transform 0.3s ease;
+}
+
+.galleta-img:hover {
+    transform: scale(1.05);
+}
+
+.fortune-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.fortune-card {
+    border-radius: 20px;
+    padding: 25px;
+    max-width: 320px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+    border: 2px dashed #f0c36d;
+}
+
+.galleta-img {
+    width: 170px;
+    margin-bottom: 10px;
+}
+
+.frase-container {
+    margin-top: 10px;
+}
+
+.frase-texto {
+    font-size: 22px;
+    font-weight: 600;
+    color: #5a3e2b;
+    margin-top: 10px;
+}
+
+.frase-autor {
+    display: block;
+    margin-top: 5px;
+    font-size: 13px;
+    color: #7a6a5a;
+}
