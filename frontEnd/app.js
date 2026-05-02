@@ -4,9 +4,44 @@ angular.module('app', [])
         const api = 'http://localhost:8001/api';
 
         $scope.loginData = {};
+        $scope.registerData = {};
         $scope.currentUser = JSON.parse(sessionStorage.getItem('user'));
         $scope.frase = "";
         $scope.formFrase = {body: ""};
+        $scope.mensaje = "";
+        $scope.tipoMensaje = "";
+
+        $scope.showMessage = function (texto, tipo) {
+            $scope.mensaje = texto;
+            $scope.tipoMensaje = tipo;
+
+            setTimeout(function () {
+                $scope.$apply(function () {
+                    $scope.clearMessage();
+                });
+            }, 3000);
+        };
+
+        $scope.clearMessage = function () {
+            $scope.mensaje = "";
+            $scope.tipoMensaje = "";
+        };
+
+
+        $scope.register = function () {
+            $http.post(api + '/register', $scope.registerData)
+                .then(function (res) {
+                    $scope.showMessage("Usuario registrado correctamente", "success");
+
+                    sessionStorage.setItem('user', JSON.stringify(res.data.user));
+                    $scope.currentUser = res.data.user;
+
+                    $scope.registerData = {};
+                })
+                .catch(function (err) {
+                    $scope.showMessage(err.data.error || "No se pudo registrar el usuario", "danger");
+                });
+        };
 
         $scope.login = function () {
             $http.post(api + '/login', $scope.loginData)
@@ -20,7 +55,7 @@ angular.module('app', [])
                 })
                 .catch(function (err) {
                     console.log(err);
-                    alert("Email o contraseña incorrectos");
+                    $scope.showMessage("Email o contraseña incorrectos", "danger");
                 });
         };
 
@@ -29,6 +64,7 @@ angular.module('app', [])
             $scope.currentUser = null;
             $scope.frase = "";
             $scope.fraseData = null;
+            $scope.clearMessage();
         };
 
         $scope.getFrase = function () {
@@ -43,7 +79,7 @@ angular.module('app', [])
                 })
                 .catch(function (err) {
                     console.log(err);
-                    alert("No se pudo abrir la galleta");
+                    $scope.showMessage("No se pudo abrir la galleta", "danger");
                 });
         };
 
@@ -51,7 +87,7 @@ angular.module('app', [])
             console.log("Nueva frase:", $scope.formFrase.body);
 
             if (!$scope.formFrase.body|| $scope.formFrase.body.trim() === "") {
-                alert("La frase no puede estar vacía.");
+                $scope.showMessage("La frase no puede estar vacía.", "warning");
                 return;
             }
 
@@ -60,12 +96,12 @@ angular.module('app', [])
                 created_by: $scope.currentUser.name
             })
                 .then(function () {
-                    $scope.mensaje = "Frase agregada correctamente";
+                    $scope.showMessage("Frase agregada correctamente", "success");
                     $scope.formFrase.body = "";
                 })
                 .catch(function (err) {
                     console.log(err);
-                    alert(JSON.stringify(err.data));
+                    $scope.showMessage(err.data.error || "Error al agregar la frase", "danger");
                 });
         };
 
@@ -77,11 +113,12 @@ angular.module('app', [])
                 created_by: $scope.currentUser.name
             })
                 .then(function () {
-                    alert("Sugerencia enviada. Quedará pendiente de aprobación.");
+                    $scope.showMessage("Sugerencia enviada. Quedará pendiente de aprobación.", "success");
                     $scope.suggestion.body = "";
                 })
                 .catch(function (err) {
-                    alert(err.data.error || "No se pudo enviar la sugerencia");
+                    $scope.showMessage(err.data.error || "No se pudo enviar la sugerencia", "danger");
+
                 });
         };
 
@@ -97,7 +134,7 @@ angular.module('app', [])
         $scope.approve = function (id) {
             $http.post(api + '/suggestions/' + id + '/approve')
                 .then(function () {
-                    alert("Aprobada");
+                    $scope.showMessage("Sugerencia aprobada", "success");
                     $scope.loadSuggestions();
                 });
         };
@@ -109,12 +146,12 @@ angular.module('app', [])
         $scope.reject = function (id) {
             $http.post(api + '/suggestions/' + id + '/reject')
                 .then(function () {
-                    alert("Sugerencia rechazada");
+                    $scope.showMessage("Sugerencia rechazada", "warning");
                     $scope.loadSuggestions();
                 })
                 .catch(function (err) {
                     console.log(err);
-                    alert("No se pudo rechazar la sugerencia");
+                    $scope.showMessage("No se pudo rechazar la sugerencia", "danger");
                 });
         };
 
@@ -168,7 +205,7 @@ angular.module('app', [])
 
         $scope.updateFrase = function (id) {
             if (!$scope.editForm.body || $scope.editForm.body.trim() === "") {
-                alert("La frase no puede estar vacía.");
+                $scope.showMessage("La frase no puede estar vacía", "warning");
                 return;
             }
 
@@ -177,7 +214,7 @@ angular.module('app', [])
             })
                 .then(function (res) {
                     console.log("UPDATE RESPONSE:", res.data);
-                    alert("Frase actualizada");
+                    $scope.showMessage("Frase actualizada correctamente", "success");
 
                     $scope.editingFrase = null;
                     $scope.editForm.body = "";
@@ -185,7 +222,7 @@ angular.module('app', [])
                 })
                 .catch(function (err) {
                     console.log(err);
-                    alert(err.data.error || "No se pudo actualizar la frase");
+                    $scope.showMessage(err.data.error || "No se pudo actualizar la frase", "danger");
                 });
         };
 
@@ -196,11 +233,11 @@ angular.module('app', [])
 
             $http.delete(api + '/frases/' + id)
                 .then(function () {
-                    alert("Frase eliminada");
+                    $scope.showMessage("Frase eliminada correctamente", "success");
                     $scope.loadFrases();
                 })
                 .catch(function () {
-                    alert("No se pudo eliminar la frase");
+                    $scope.showMessage("No se pudo eliminar la frase", "danger");
                 });
         };
     });

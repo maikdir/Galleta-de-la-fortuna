@@ -20,3 +20,5 @@ Route::get('/suggestions/rejected', [SuggestionController::class, 'rejected']);
 
 Route::put('/frases/{id}', [FortuneController::class, 'update']);
 Route::delete('/frases/{id}', [FortuneController::class, 'destroy']);
+
+Route::post('/register', [AuthController::class, 'register']);

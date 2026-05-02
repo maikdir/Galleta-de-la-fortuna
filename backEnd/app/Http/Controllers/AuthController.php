@@ -20,4 +20,28 @@ class AuthController extends Controller
 
         return response()->json(['user'=>$user]);
     }
+
+    public function register(Request $req)
+    {
+        if (!$req->name || !$req->email || !$req->password) {
+            return response()->json(['error' => 'Faltan datos'], 400);
+        }
+
+        if (User::where('email', $req->email)->exists()) {
+            return response()->json(['error' => 'El email ya está registrado'], 400);
+        }
+
+        $user = User::create([
+            'name' => $req->name,
+            'email' => $req->email,
+            'password' => Hash::make($req->password),
+            'role' => 'user'
+        ]);
+
+        return response()->json([
+            'message' => 'Usuario registrado correctamente',
+            'user' => $user
+        ]);
+    }
+
 }
